@@ -1,6 +1,36 @@
 import xml.etree.ElementTree as ET
 import os
 from datetime import datetime
+import pickle
+
+#quiz-class
+class quiz:
+    def __init__(self,qname="",questions=[],options=[]):
+        self.qname = qname
+        self.questions = questions
+        self.options = options
+    def __str__(self):
+        return 'quiz(name='+self.qname+', numberof questions='+str(len(self.questions))+ ')'
+    def validate(self):
+        if self.qname != "" and len(self.questions) != 0 and len(self.questions) == len(self.options):
+            return 1
+        return 0        
+    def store(self):
+        if self.validate():
+            if not os.path.exists("obj/"):
+                os.mkdir("obj")
+            with open("obj/"+self.qname+'.pkl', 'wb') as output:
+                pickle.dump(self, output, pickle.HIGHEST_PROTOCOL)
+        else:
+            print("invalid/null object cannot store")
+#fetches quiz object
+def fetch(qname):
+    if os.path.exists("obj/"+qname+".pkl"):
+        with open("obj/"+qname+'.pkl', 'rb') as input:
+            quiz = pickle.load(input)
+            return quiz
+    return None
+
 
 #provides log functionality for debugging
 def logger(logtext):
@@ -69,7 +99,10 @@ def validate(useranswers,qname):
             for i in range(len(correct)):
                 if correct[i] == useranswers[i]:
                     score = score +1
+        else:
+            error("number of answers expected:"+str(len(correct))+" Number of answers given:"+str(len(useranswers)))
     else:
         error("Quiz does not Exist")
     return score
+
               
